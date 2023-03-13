@@ -1,5 +1,7 @@
 package com.example.entregaexamenjavafx;
 
+import com.example.entregaexamenjavafx.model.Alumno;
+import com.example.entregaexamenjavafx.model.Informe;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -7,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
+import net.sf.jasperreports.engine.JRException;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -29,19 +32,19 @@ public class MainController implements Initializable {
     @FXML
     private Text areaAltura;
     @FXML
-    private Spinner ad;
+    private Spinner<Double> ad;
     @FXML
     private Text areaActividad;
     @FXML
-    private Spinner sge;
+    private Spinner<Double> sge;
     @FXML
-    private Spinner di;
+    private Spinner<Double> di;
     @FXML
     private Button añadirAlumno;
     @FXML
     private TextField apellido;
     @FXML
-    private Spinner pmdm;
+    private Spinner<Double> pmdm;
     @FXML
     private Text areaActividad1;
     @FXML
@@ -49,11 +52,11 @@ public class MainController implements Initializable {
     @FXML
     private Text areaActividad21;
     @FXML
-    private Spinner psp;
+    private Spinner<Double> psp;
     @FXML
-    private Spinner eie;
+    private Spinner<Double> eie;
     @FXML
-    private Spinner hlc;
+    private Spinner<Double> hlc;
     @FXML
     private Button descargarBtn;
     @FXML
@@ -76,6 +79,12 @@ public class MainController implements Initializable {
     private TableColumn eieCol;
     @FXML
     private TableColumn hlcCol;
+    @FXML
+    private TextField nombreLabel;
+    @FXML
+    private TextField mediaLabel;
+    @FXML
+    private TextField suspensosLabel;
 
     @FXML
     public void addButtonOnAction(ActionEvent actionEvent) {
@@ -110,7 +119,7 @@ public class MainController implements Initializable {
             eieCol.setCellValueFactory(new PropertyValueFactory<>("eie"));
             hlcCol.setCellValueFactory(new PropertyValueFactory<>("hlc"));
 
-            if (name != null && apellidos != null && sge_value >= 0.0 && ad_value >= 0.0 && di_value >= 0.0 && pmdm_value >= 0.0 && psp_value >= 0.0 && eie_value >= 0.0 && hlc_value >= 0.0) {
+            if (name != null && apellidos != null && sge_value >= 0.0 && ad_value >= 0.0 && di_value >= 0.0 && pmdm_value >= 0.0 && psp_value >= 0.0 && eie_value >= 0.0 && hlc_value >= 0.0 && sge_value <= 10.0 && ad_value <= 10.0 && di_value <= 10.0 && pmdm_value <= 10.0 && psp_value <= 10.0 && eie_value <= 10.0 && hlc_value <= 10.0) {
                 Alumno al = new Alumno(null, name, apellidos, ad_value, sge_value, di_value, pmdm_value, psp_value, eie_value, hlc_value);
                 vistaTabla.getItems().add(al);
 
@@ -135,22 +144,25 @@ public class MainController implements Initializable {
     }
 
     @FXML
-    public void descargarButtonOnAction(ActionEvent actionEvent) {
+    public void descargarButtonOnAction(ActionEvent actionEvent) throws JRException {
+        Informe.showReportCalificaciones();
+        Informe.showPDFCalificaciones();
     }
 
     @FXML
     public void exitButtonOnAction(ActionEvent actionEvent) {
+        System.exit(0);
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        ad.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 10));
-        sge.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 10));
-        di.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 10));
-        pmdm.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 10));
-        psp.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 10));
-        eie.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 10));
-        hlc.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0, 10));
+        ad.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0.0, 10.0, 0.0, 0.1));
+        sge.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0.0, 10.0, 0.0, 0.1));
+        di.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0.0, 10.0, 0.0, 0.1));
+        pmdm.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0.0, 10.0, 0.0, 0.1));
+        psp.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0.0, 10.0, 0.0, 0.1));
+        eie.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0.0, 10.0, 0.0, 0.1));
+        hlc.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0.0, 10.0, 0.0, 0.1));
 
         nombreCol.setCellValueFactory(new PropertyValueFactory<>("nombre"));
         adCol.setCellValueFactory(new PropertyValueFactory<>("ad"));
@@ -167,5 +179,30 @@ public class MainController implements Initializable {
             vistaTabla.getItems().add(alu);
         }
         vistaTabla.refresh();
+
+        vistaTabla.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                Alumno alumno = (Alumno) newValue;
+                String nombreCompleto = "Nombre: " + alumno.getNombre();
+
+
+                nombreLabel.setText(nombreCompleto);
+                double notaMedia = alumno.getNotaMedia();
+
+
+                if (notaMedia >= 0) {
+                    mediaLabel.setText("Nota media: " + notaMedia);
+                } else {
+                    mediaLabel.setText("No tiene todas las asignaturas aprobadas.");
+                }
+                int numSuspensos = alumno.getSuspensos();
+                if (numSuspensos > 0) {
+                    suspensosLabel.setText("Suspensos: " + numSuspensos);
+                } else {
+                    suspensosLabel.setText("No tiene ningun suspenso");
+                }
+            }
+        });
+
     }
 }

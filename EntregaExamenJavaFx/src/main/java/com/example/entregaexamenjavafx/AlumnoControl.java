@@ -1,6 +1,6 @@
 package com.example.entregaexamenjavafx;
 
-import com.example.entregaexamenjavafx.Alumno;
+import com.example.entregaexamenjavafx.model.Alumno;
 
 import java.util.ArrayList;
 

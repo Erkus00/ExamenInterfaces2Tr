@@ -1,4 +1,7 @@
-package com.example.entregaexamenjavafx;
+package com.example.entregaexamenjavafx.model;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class Alumno {
     Integer id;
@@ -31,6 +34,38 @@ public class Alumno {
         this.id = id;
     }
 
+    public Double getNotaMedia() {
+        Double media = (ad + sge + di + pmdm + pmdm + eie + hlc) / 7;
+        BigDecimal bd = new BigDecimal(media);
+        bd = bd.setScale(2, RoundingMode.CEILING);
+        return bd.doubleValue();
+    }
+
+    public Integer getSuspensos() {
+        Integer cont = 0;
+        if (ad < 5) {
+            cont++;
+        }
+        if (sge < 5) {
+            cont++;
+        }
+        if (di < 5) {
+            cont++;
+        }
+        if (pmdm < 5) {
+            cont++;
+        }
+        if (psp < 5) {
+            cont++;
+        }
+        if (eie < 5) {
+            cont++;
+        }
+        if (hlc < 5) {
+            cont++;
+        }
+        return cont;
+    }
 
     public String getNombre() {
         return nombre;
