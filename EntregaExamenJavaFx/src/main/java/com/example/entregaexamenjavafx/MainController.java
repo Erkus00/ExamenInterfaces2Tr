@@ -126,6 +126,7 @@ public class MainController implements Initializable {
                 vistaTabla.refresh();
 
                 nombre.clear();
+                apellido.clear();
                 ad.getValueFactory().setValue(0.0);
                 sge.getValueFactory().setValue(0.0);
                 di.getValueFactory().setValue(0.0);
